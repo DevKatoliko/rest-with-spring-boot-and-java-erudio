@@ -2,15 +2,16 @@ package br.com.erudio.services;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.erudio.data.vo.v1.PersonVO;
+import br.com.erudio.data.vo.v2.PersonVOV2;
 import br.com.erudio.exceptions.ResourceNotFoundException;
 import br.com.erudio.mapper.DozerMapper;
+import br.com.erudio.mapper.custom.PersonMapper;
 import br.com.erudio.model.Person;
 import br.com.erudio.repositories.PersonRepository;
 
@@ -21,6 +22,8 @@ public class PersonService implements Serializable{
 	@Autowired
 	private PersonRepository repository;
 	
+	@Autowired
+	private PersonMapper mapper;
 	
 	private Logger logger = Logger.getLogger(PersonService.class.getName());
 	
@@ -44,6 +47,13 @@ public class PersonService implements Serializable{
 		var entity = DozerMapper.parseObject(person, Person.class);
 		var vo = DozerMapper.parseObject(repository.save(entity),PersonVO.class);
 		 return vo;
+	}
+	
+	public PersonVOV2 createV2(PersonVOV2 person) {
+		logger.info("Creating a person v2");
+		var entity = mapper.convertVOToEntity(person);
+		var vo = mapper.convertEntityToVO(repository.save(entity));// Primeiro o método converte a entidade para VO e depois persiste ela na base de dados
+		return vo;
 	}
 
 	public PersonVO update(PersonVO person) {
