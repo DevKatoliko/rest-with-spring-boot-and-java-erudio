@@ -22,7 +22,7 @@ public class PersonService implements Serializable{
 	@Autowired
 	private PersonRepository repository;
 	
-	@Autowired
+
 	private PersonMapper mapper;
 	
 	private Logger logger = Logger.getLogger(PersonService.class.getName());
