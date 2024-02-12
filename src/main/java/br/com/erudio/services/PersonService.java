@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import br.com.erudio.contollers.PersonController;
 import br.com.erudio.data.vo.v1.PersonVO;
 import br.com.erudio.data.vo.v2.PersonVOV2;
+import br.com.erudio.exceptions.RequiredObjectIsNullException;
 import br.com.erudio.exceptions.ResourceNotFoundException;
 import br.com.erudio.mapper.DozerMapper;
 import br.com.erudio.mapper.custom.PersonMapper;
@@ -53,6 +54,8 @@ public class PersonService implements Serializable{
 	
 	public PersonVO create(PersonVO person) {
 		logger.info("Creating a person");
+		if(person == null) throw new RequiredObjectIsNullException();
+		
 		var entity = DozerMapper.parseObject(person, Person.class);
 		var vo = DozerMapper.parseObject(repository.save(entity),PersonVO.class);
 		vo.add(linkTo(methodOn(PersonController.class).findPersonVOByID(vo.getKey())).withSelfRel());
@@ -62,12 +65,13 @@ public class PersonService implements Serializable{
 	public PersonVOV2 createV2(PersonVOV2 person) {
 		logger.info("Creating a person v2");
 		var entity = mapper.convertVOToEntity(person);
-		var vo = mapper.convertEntityToVO(repository.save(entity));// Primeiro o método converte a entidade para VO e depois persiste ela na base de dados
+		var vo = mapper.convertEntityToVO(repository.save(entity));// Primeiro o método persiste a entidade na base de dados e depois converte para VO
 		return vo;
 	}
 
 	public PersonVO update(PersonVO person) {
 		logger.info("Updating a person");
+		if(person == null) throw new RequiredObjectIsNullException();
 		var entity = repository.findById(person.getKey()).orElseThrow(() -> new ResourceNotFoundException("There was no person with this ID:"));
 		entity.setFirstName(person.getFirstName());
 		entity.setLastName(person.getLastName());
